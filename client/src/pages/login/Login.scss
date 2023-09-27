@@ -1,0 +1,80 @@
+.login {
+  height: 100vh;
+  background-color: #ffeef4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .card {
+    width: 50%;
+    display: flex;
+    background-color: white;
+    border-radius: 10px;
+    min-height: 500px;
+    overflow: hidden;
+    .left {
+      flex: 1;
+      background: linear-gradient(
+          rgba(174, 195, 174, 0.55),
+          rgba(148, 166, 132, 0.55)
+        ),
+        url('https://d39l2hkdp2esp1.cloudfront.net/img/photo/169175/169175_00_2x.jpg')
+          center center;
+      background-size: cover;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      color: white;
+      h1 {
+        font-size: 100px;
+        line-height: 100px;
+      }
+      p {
+      }
+      span {
+        font-size: 14px;
+      }
+      button {
+        width: 50%;
+        padding: 10px;
+        border: none;
+        background-color: white;
+        color: #94a684;
+        font-weight: bold;
+        cursor: pointer;
+      }
+    }
+    .right {
+      flex: 1;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 50px;
+      justify-content: center;
+
+      h1 {
+        color: #94a684;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        input {
+          border: none;
+          border-bottom: 1px solid lightgray;
+          padding: 20px;
+          outline: none;
+        }
+        button {
+          width: 50%;
+          padding: 10px;
+          border: none;
+          background-color: #aec3ae;
+          color: white;
+          font-weight: bold;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+}
