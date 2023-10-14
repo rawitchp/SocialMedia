@@ -6,22 +6,33 @@ import { makeRequest } from '../../axios';
 import moment from 'moment';
 import { useMutation, useQueryClient } from 'react-query';
 
-function Comments({ postId, profilePic }) {
+function Comments({ postId, profilePic, setCountComments }) {
   const { currentUser } = useContext(AuthContext);
 
   const [desc, setDesc] = useState('');
 
-  const { isLoading, error, data } = useQuery(['comments'], () =>
-    makeRequest.get('/comments?postId=' + postId).then((res) => {
-      return res.data;
-    })
-  );
+  const { isLoading, error, data } = useQuery(['comments'], async () => {
+    const { access_token } = await JSON.parse(localStorage.getItem('user'));
+
+    return makeRequest
+      .get('/comments?postId=' + postId, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      })
+      .then((res) => {
+        setCountComments(res.data.length);
+        return res.data;
+      });
+  });
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (newComment) => {
-      return makeRequest.post('/comments', newComment);
+    async (newComment) => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+
+      return makeRequest.post('/comments', newComment, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
     },
     {
       onSuccess: () => {
@@ -33,13 +44,16 @@ function Comments({ postId, profilePic }) {
 
   const handleClick = async (e) => {
     e.preventDefault();
+    if (desc === '') {
+      return;
+    }
     mutation.mutate({ desc, postId });
     setDesc('');
   };
   return (
     <div className="comments">
       <div className="write">
-        <img src={'../upload/' + profilePic} alt="" />
+        <img src={profilePic} alt="" />
         <input
           type="text"
           placeholder="write a comment"
@@ -52,7 +66,7 @@ function Comments({ postId, profilePic }) {
         ? 'loading...'
         : data?.map((comment) => (
             <div className="comment" key={comment.id}>
-              <img src={'../upload/' + comment.profilePic} alt="" />
+              <img src={comment.profilePic} alt="" />
               <div className="info">
                 <span>{comment.name}</span>
                 <p>{comment.desc}</p>

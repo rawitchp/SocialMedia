@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import './post.scss';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
@@ -18,18 +18,48 @@ function Post({ post }) {
 
   const { currentUser } = useContext(AuthContext);
 
-  const { isLoading, error, data } = useQuery(['likes', post.id], () =>
-    makeRequest.get('/likes?postId=' + post.id).then((res) => {
-      return res.data;
-    })
-  );
+  const [countComments, setCountComments] = useState(false);
+
+  async function fetchComments() {
+    const { access_token } = await JSON.parse(localStorage.getItem('user'));
+    const res = await makeRequest
+      .get('/comments?postId=' + post.id, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      })
+      .then((res) => {
+        return res.data;
+      });
+    setCountComments(res.length);
+  }
+
+  const { isLoading, error, data } = useQuery(['likes', post.id], async () => {
+    const { access_token } = await JSON.parse(localStorage.getItem('user'));
+    fetchComments();
+    return makeRequest
+      .get('/likes?postId=' + post.id, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      })
+      .then((res) => {
+        return res.data;
+      });
+  });
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (liked) => {
-      if (liked) return makeRequest.delete('/likes?postId=' + post.id);
-      return makeRequest.post('/likes', { postId: post.id });
+    async (liked) => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+      if (liked)
+        return makeRequest.delete('/likes?postId=' + post.id, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+      return makeRequest.post(
+        '/likes',
+        { postId: post.id },
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
     },
     {
       onSuccess: () => {
@@ -43,9 +73,27 @@ function Post({ post }) {
     mutation.mutate(data.includes(currentUser.id));
   };
 
+  // const { isCommentLoading, commentError, commentData } = useQuery(
+  //   ['comments'],
+  //   async () => {
+  //     const { access_token } = await JSON.parse(localStorage.getItem('user'));
+
+  //     return makeRequest
+  //       .get('/comments?postId=' + postId, {
+  //         headers: { Authorization: `Bearer ${access_token}` },
+  //       })
+  //       .then((res) => {
+  //         return res.data;
+  //       });
+  //   }
+  // );
+
   const deleteMutation = useMutation(
-    (postId) => {
-      return makeRequest.delete('/posts/' + postId);
+    async (postId) => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+      return makeRequest.delete('/posts/' + postId, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
     },
     {
       onSuccess: () => {
@@ -64,7 +112,7 @@ function Post({ post }) {
       <div className="container">
         <div className="user">
           <div className="userInfo">
-            <img src={'../upload/' + post.profilePic} alt="" />
+            <img src={post?.profilePic} alt="" />
             <div className="details">
               <Link
                 to={`/profile/${post.userId}`}
@@ -82,7 +130,7 @@ function Post({ post }) {
         </div>
         <div className="content">
           <p>{post.desc}</p>
-          <img src={`../upload/${post.img}`} alt="" />
+          <img src={post.img} alt="" />
         </div>
         <div className="info">
           <div className="item">
@@ -100,7 +148,7 @@ function Post({ post }) {
           </div>
           <div className="item" onClick={() => setCommentOpen(!commentOpen)}>
             <TextsmsOutlinedIcon />
-            12 Comments
+            {countComments} Comments
           </div>
           <div className="item">
             <ShareOutlinedIcon />
@@ -108,7 +156,11 @@ function Post({ post }) {
           </div>
         </div>
         {commentOpen && (
-          <Comments postId={post.id} profilePic={post.profilePic} />
+          <Comments
+            postId={post.id}
+            profilePic={post.profilePic}
+            setCountComments={setCountComments}
+          />
         )}
       </div>
     </div>

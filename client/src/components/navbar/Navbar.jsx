@@ -8,13 +8,21 @@ import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNone
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { DarkModeContext } from '../../context/darkModeContext';
 import { AuthContext } from '../../context/authContext';
 
 function Navbar() {
   const { darkMode, toggle } = useContext(DarkModeContext);
-  const { currentUser } = useContext(AuthContext);
+  const { currentUser, setCurrentUser } = useContext(AuthContext);
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    localStorage.removeItem('user');
+    setCurrentUser(false);
+    navigate('/login');
+  };
 
   return (
     <div className="navbar">
@@ -22,26 +30,29 @@ function Navbar() {
         <Link to="/" style={{ textDecoration: 'none' }}>
           <span>MIXSOCIAL</span>
         </Link>
-        <HomeOutlinedIcon />
+
         {darkMode ? (
           <WbSunnyOutlinedIcon onClick={toggle} />
         ) : (
           <DarkModeOutlinedIcon onClick={toggle} />
         )}
-        <GridViewOutlinedIcon />
+
         <div className="search">
           <SearchOutlinedIcon />
           <input type="text" placeholder="Search..." />
         </div>
       </div>
       <div className="right">
-        <PersonOutlineOutlinedIcon />
-        <EmailOutlinedIcon />
-        <NotificationsNoneOutlinedIcon />
-        <div className="user">
-          <img src={currentUser.profilePic} alt="" />
-          <span>{currentUser.name}</span>
+        <div className="icon">
+          <NotificationsNoneOutlinedIcon />
+          <div className="user">
+            <img src={currentUser.profilePic} alt="" />
+            <span>{currentUser.name}</span>
+          </div>
         </div>
+        <button className="btn" onClick={handleLogout}>
+          logout
+        </button>
       </div>
     </div>
   );

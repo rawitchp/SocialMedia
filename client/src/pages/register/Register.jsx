@@ -1,6 +1,8 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BASE_URL } from '../../axios';
+
 import './Register.scss';
 
 function Register() {
@@ -20,7 +22,7 @@ function Register() {
     e.preventDefault();
 
     try {
-      await axios.post('http://localhost:8800/api/auth/register', inputs);
+      await axios.post(`${BASE_URL}/auth/register`, inputs);
     } catch (err) {
       setErr(err.response.data);
     }

@@ -19,25 +19,46 @@ function Profile() {
   const { currentUser } = useContext(AuthContext);
   const [openUpdate, setOpenUpdate] = useState(false);
   const userId = parseInt(useLocation().pathname.split('/')[2]);
-  const { isLoading, error, data } = useQuery(['user'], () =>
-    makeRequest.get('/users/find/' + userId).then((res) => {
-      return res.data;
-    })
-  );
+  const { isLoading, error, data } = useQuery(['user'], async () => {
+    const { access_token } = await JSON.parse(localStorage.getItem('user'));
 
-  const { data: relationshipData } = useQuery(['relationship'], () =>
-    makeRequest.get('/relationships?followedUserId=' + userId).then((res) => {
-      return res.data;
-    })
-  );
+    return makeRequest
+      .get('/users/find/' + userId, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      })
+      .then((res) => {
+        return res.data;
+      });
+  });
+
+  const { data: relationshipData } = useQuery(['relationship'], async () => {
+    const { access_token } = await JSON.parse(localStorage.getItem('user'));
+    return makeRequest
+      .get('/relationships?followedUserId=' + userId, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      })
+      .then((res) => {
+        return res.data;
+      });
+  });
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (following) => {
+    async (following) => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+
       if (following)
-        return makeRequest.delete('/relationships?userId=' + userId);
-      return makeRequest.post('/relationships', { userId });
+        return makeRequest.delete('/relationships?userId=' + userId, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        });
+      return makeRequest.post(
+        '/relationships',
+        { userId },
+        {
+          headers: { Authorization: `Bearer ${access_token}` },
+        }
+      );
     },
     {
       onSuccess: () => {
@@ -53,12 +74,8 @@ function Profile() {
   return (
     <div className="profile">
       <div className="images">
-        <img src={'../upload/' + data?.coverPic} alt="" className="cover" />
-        <img
-          src={'../upload/' + data?.profilePic}
-          alt=""
-          className="profilePic"
-        />
+        <img src={data?.coverPic} alt="" className="cover" />
+        <img src={data?.profilePic} alt="" className="profilePic" />
       </div>
       <div className="profileContainer">
         <div className="uInfo">

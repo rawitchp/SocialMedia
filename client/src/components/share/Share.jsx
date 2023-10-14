@@ -10,14 +10,17 @@ import { makeRequest } from '../../axios';
 const Share = () => {
   const [file, setFile] = useState(null);
   const [desc, setDesc] = useState('');
-  const { currentUser } = useContext(AuthContext);
+  let { currentUser } = useContext(AuthContext);
 
   const upload = async () => {
     try {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
       const formData = new FormData();
       formData.append('file', file);
-      const res = await makeRequest.post('/upload', formData);
-      return res.data;
+      const res = await makeRequest.post('/upload', formData, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+      return res.data.url;
     } catch (err) {
       console.log(err);
     }
@@ -26,8 +29,12 @@ const Share = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (newPost) => {
-      return makeRequest.post('/posts', newPost);
+    async (newPost) => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+
+      return makeRequest.post('/posts', newPost, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
     },
     {
       onSuccess: () => {

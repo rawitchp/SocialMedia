@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from 'react';
 import axios from 'axios';
+import { BASE_URL } from '../axios';
 
 export const AuthContext = createContext();
 
@@ -10,11 +11,10 @@ export const AuthContextProvider = ({ children }) => {
 
   const login = async (payload) => {
     try {
-      let res = await axios.post(
-        'http://localhost:8800/api/auth/login',
-        payload,
-        { withCredentials: true }
-      );
+      let res = await axios.post(`${BASE_URL}/auth/login`, payload, {
+        'ngrok-skip-browser-warning': true,
+      });
+
       setCurrentUser(res.data);
     } catch (err) {
       console.log(err);
@@ -25,7 +25,7 @@ export const AuthContextProvider = ({ children }) => {
   }, [currentUser]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, login }}>
+    <AuthContext.Provider value={{ currentUser, login, setCurrentUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/authContext';
 
 function Login() {
-  const { login } = useContext(AuthContext);
+  const { login, currentUser } = useContext(AuthContext);
 
   const [inputs, setInputs] = useState({ username: '', password: '' });
 
@@ -14,10 +14,11 @@ function Login() {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      login(inputs);
+      await login(inputs);
+
       navigate('/');
     } catch (err) {
       console.log(err);

@@ -12,10 +12,14 @@ function Update(props) {
 
   const upload = async (file) => {
     try {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
       const formData = new FormData();
       formData.append('file', file);
-      const res = await makeRequest.post('/upload', formData);
-      return res.data;
+      const res = await makeRequest.post('/upload', formData, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+
+      return res.data.url;
     } catch (err) {
       console.log(err);
     }
@@ -24,8 +28,12 @@ function Update(props) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
-    (user) => {
-      return makeRequest.put('/users', user);
+    async (user) => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+
+      return makeRequest.put('/users', user, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
     },
     {
       onSuccess: () => {
@@ -46,7 +54,7 @@ function Update(props) {
 
     coverUrl = cover ? await upload(cover) : user.coverPic;
     profileUrl = profile ? await upload(profile) : user.profilePic;
-    console.log({ ...texts, coverPic: coverUrl, profilePic: profileUrl });
+
     mutation.mutate({ ...texts, coverPic: coverUrl, profilePic: profileUrl });
     setOpenUpdate(false);
   };
@@ -59,14 +67,7 @@ function Update(props) {
           <label>
             Cover Picture{' '}
             <div className="imgContainer">
-              <img
-                src={
-                  profile
-                    ? URL.createObjectURL(cover)
-                    : '../upload/' + user.coverPic
-                }
-                alt=""
-              />
+              <img src={user.coverPic} alt="" />
             </div>
           </label>
           <input
@@ -78,14 +79,7 @@ function Update(props) {
           <label>
             Profile Picture{' '}
             <div className="imgContainer">
-              <img
-                src={
-                  profile
-                    ? URL.createObjectURL(profile)
-                    : '../upload/' + user.profilePic
-                }
-                alt=""
-              />
+              <img src={user.profilePic} alt="" />
             </div>
           </label>
           <input
