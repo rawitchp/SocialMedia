@@ -18,7 +18,7 @@ function Post({ post }) {
 
   const { currentUser } = useContext(AuthContext);
 
-  const [countComments, setCountComments] = useState(false);
+  const [countComments, setCountComments] = useState(0);
 
   async function fetchComments() {
     const { access_token } = await JSON.parse(localStorage.getItem('user'));
@@ -32,9 +32,23 @@ function Post({ post }) {
     setCountComments(res.length);
   }
 
+  const { isCommentLoading, commentError, commentData } = useQuery(
+    ['comments', post.id],
+    async () => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+      return await makeRequest
+        .get('/comments?postId=' + post.id, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        })
+        .then((res) => {
+          setCountComments(res.data.length);
+          return res.data;
+        });
+    }
+  );
+
   const { isLoading, error, data } = useQuery(['likes', post.id], async () => {
     const { access_token } = await JSON.parse(localStorage.getItem('user'));
-    fetchComments();
     return makeRequest
       .get('/likes?postId=' + post.id, {
         headers: { Authorization: `Bearer ${access_token}` },

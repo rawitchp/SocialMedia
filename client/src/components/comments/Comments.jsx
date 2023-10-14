@@ -11,18 +11,20 @@ function Comments({ postId, profilePic, setCountComments }) {
 
   const [desc, setDesc] = useState('');
 
-  const { isLoading, error, data } = useQuery(['comments'], async () => {
-    const { access_token } = await JSON.parse(localStorage.getItem('user'));
-
-    return makeRequest
-      .get('/comments?postId=' + postId, {
-        headers: { Authorization: `Bearer ${access_token}` },
-      })
-      .then((res) => {
-        setCountComments(res.data.length);
-        return res.data;
-      });
-  });
+  const { isLoading, error, data } = useQuery(
+    ['comments', postId],
+    async () => {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+      return makeRequest
+        .get('/comments?postId=' + postId, {
+          headers: { Authorization: `Bearer ${access_token}` },
+        })
+        .then((res) => {
+          setCountComments(res.data.length);
+          return res.data;
+        });
+    }
+  );
 
   const queryClient = useQueryClient();
 
