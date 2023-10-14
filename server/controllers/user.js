@@ -11,6 +11,18 @@ export const userController = {
       return res.json(info);
     });
   },
+
+  getUsers(req, res) {
+    const q = 'SELECT * FROM users';
+    db.query(q, (err, data) => {
+      if (err) return res.status(500).json(err);
+      data = data.map((user) => {
+        const { password, ...info } = user;
+        return { ...info };
+      });
+      return res.json(data);
+    });
+  },
   updateUser(req, res) {
     const userId = req.params.userId;
     const authHeader = req.headers['authorization'];
