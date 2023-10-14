@@ -13,7 +13,6 @@ import multer from 'multer';
 import dotenv from 'dotenv';
 import { handleUpload } from './cloudinaryConfig.js';
 import { verifyAccessToken } from './helper.js';
-import serverless from 'serverless-http';
 
 dotenv.config();
 
@@ -51,10 +50,6 @@ app.use(express.json());
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(cookieParser());
 
-//FOR TEST
-const router = Router();
-router.get("/hello", (req, res) => res.send("Hello World!"));
-
 app.use('/api/auth', authRoutes);
 
 app.use('/api/users', verifyAccessToken, userRoutes);
@@ -72,5 +67,3 @@ app.use('/api/upload', verifyAccessToken, myUploadMiddleware, uploadRoutes);
 app.listen(4000, () => {
   console.log('⭐ SERVER START! ⭐');
 });
-
-export const handler = serverless(app);
