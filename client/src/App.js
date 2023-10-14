@@ -17,6 +17,7 @@ import { useContext } from 'react';
 import { DarkModeContext } from './context/darkModeContext';
 import { AuthContext } from './context/authContext';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import Social from './components/Social/Social';
 function App() {
   const { currentUser } = useContext(AuthContext);
 
@@ -60,6 +61,10 @@ function App() {
         {
           path: '/',
           element: <Home />,
+        },
+        {
+          path: '/social',
+          element: <Social />,
         },
         {
           path: '/profile/:id',

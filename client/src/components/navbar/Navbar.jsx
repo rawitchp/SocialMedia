@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import './Navbar.scss';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
@@ -11,10 +11,13 @@ import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { Link, useNavigate } from 'react-router-dom';
 import { DarkModeContext } from '../../context/darkModeContext';
 import { AuthContext } from '../../context/authContext';
+import { useDebounce } from 'use-debounce';
 
 function Navbar() {
   const { darkMode, toggle } = useContext(DarkModeContext);
   const { currentUser, setCurrentUser } = useContext(AuthContext);
+  const [search, setSearch] = useState('');
+  // const [debouncedValue] = useDebounce(search, 500);
 
   const navigate = useNavigate();
 
@@ -22,6 +25,15 @@ function Navbar() {
     localStorage.removeItem('user');
     setCurrentUser(false);
     navigate('/login');
+  };
+
+  const goToProfile = () => {
+    navigate('/profile/' + currentUser.id);
+  };
+  const goToSocial = async (e) => {
+    if (e.key === 'Enter') {
+      navigate('/social', { state: { search } });
+    }
   };
 
   return (
@@ -39,13 +51,19 @@ function Navbar() {
 
         <div className="search">
           <SearchOutlinedIcon />
-          <input type="text" placeholder="Search..." />
+          <input
+            type="text"
+            placeholder="Search Users..."
+            value={search}
+            onKeyUp={(e) => goToSocial(e)}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
       </div>
       <div className="right">
         <div className="icon">
           <NotificationsNoneOutlinedIcon />
-          <div className="user">
+          <div className="user" onClick={goToProfile}>
             <img src={currentUser.profilePic} alt="" />
             <span>{currentUser.name}</span>
           </div>

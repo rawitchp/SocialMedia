@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { BASE_URL } from '../../axios';
 
 import './Register.scss';
@@ -18,11 +18,14 @@ function Register() {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const navigate = useNavigate();
+
   const handleClick = async (e) => {
     e.preventDefault();
 
     try {
       await axios.post(`${BASE_URL}/auth/register`, inputs);
+      navigate('/login');
     } catch (err) {
       setErr(err.response.data);
     }

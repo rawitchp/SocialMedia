@@ -20,12 +20,29 @@ export const AuthContextProvider = ({ children }) => {
       console.log(err);
     }
   };
+
+  const refetch = async () => {
+    try {
+      const { access_token } = await JSON.parse(localStorage.getItem('user'));
+
+      let res = await axios.get(`${BASE_URL}/users/find/${currentUser.id}`, {
+        headers: { Authorization: `Bearer ${access_token}` },
+      });
+
+      setCurrentUser({ ...currentUser, ...res.data });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     localStorage.setItem('user', JSON.stringify(currentUser));
   }, [currentUser]);
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, setCurrentUser }}>
+    <AuthContext.Provider
+      value={{ currentUser, login, setCurrentUser, refetch }}
+    >
       {children}
     </AuthContext.Provider>
   );

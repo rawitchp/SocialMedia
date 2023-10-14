@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { makeRequest } from '../../axios';
 import './update.scss';
 import { useMutation, useQueryClient } from 'react-query';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { AuthContext } from '../../context/authContext';
 
 function Update(props) {
   const { setOpenUpdate, user } = props;
@@ -24,7 +24,7 @@ function Update(props) {
       console.log(err);
     }
   };
-
+  const { refetch } = useContext(AuthContext);
   const queryClient = useQueryClient();
 
   const mutation = useMutation(
@@ -38,6 +38,7 @@ function Update(props) {
     {
       onSuccess: () => {
         // Invalidate and refetch
+        refetch();
         queryClient.invalidateQueries(['user']);
       },
     }
@@ -56,6 +57,7 @@ function Update(props) {
     profileUrl = profile ? await upload(profile) : user.profilePic;
 
     mutation.mutate({ ...texts, coverPic: coverUrl, profilePic: profileUrl });
+
     setOpenUpdate(false);
   };
 

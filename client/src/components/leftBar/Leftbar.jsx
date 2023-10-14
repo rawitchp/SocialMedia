@@ -14,22 +14,37 @@ import Tutorials from '../../assets/11.png';
 import Courses from '../../assets/12.png';
 import Fund from '../../assets/13.png';
 import { AuthContext } from '../../context/authContext';
+import { useNavigate } from 'react-router-dom';
 
 function Leftbar() {
   const { currentUser } = useContext(AuthContext);
-
+  const navigate = useNavigate();
+  const goToProfile = () => {
+    navigate('/profile/' + currentUser.id);
+  };
+  const goToSocial = () => {
+    navigate('/social');
+  };
 
   return (
     <div className="leftbar">
       <div className="container">
         <div className="menu">
-          <div className="user">
+          <div
+            className="user"
+            onClick={goToProfile}
+            style={{ cursor: 'pointer' }}
+          >
             <img src={currentUser.profilePic} alt="" />
             <span>{currentUser.name}</span>
           </div>
-          <div className="item">
+          <div
+            className="item"
+            onClick={goToSocial}
+            style={{ cursor: 'pointer' }}
+          >
             <img src={Friends} alt="" />
-            <span>Friends</span>
+            <span>People</span>
           </div>
           <div className="item">
             <img src={Groups} alt="" />
