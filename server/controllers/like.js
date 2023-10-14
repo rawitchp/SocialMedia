@@ -11,7 +11,9 @@ export const likeController = {
     });
   },
   addLike(req, res) {
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q = 'INSERT INTO likes (`userId`,`postId`) VALUES (?)';
 
@@ -23,9 +25,9 @@ export const likeController = {
     });
   },
   deleteLike(req, res) {
-   
-
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q = 'DELETE FROM likes WHERE `userId` = ? AND `postId` = ?';
       const values = [userInfo.id, req.query.postId];

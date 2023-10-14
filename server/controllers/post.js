@@ -6,7 +6,9 @@ export const postController = {
   getPosts(req, res) {
     const userId = req.query.userId;
 
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q = userId
         ? `SELECT p.*, u.id AS userId, name, profilePic FROM posts AS p JOIN users AS u ON (u.id = p.userId) WHERE p.userId = ?  ORDER BY p.createdAt DESC`
@@ -22,7 +24,9 @@ export const postController = {
     });
   },
   addPost(req, res) {
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q =
         'INSERT INTO posts (`desc`,`img`,`createdAt`,`userId`) VALUES (?)';
@@ -40,7 +44,9 @@ export const postController = {
     });
   },
   deletePost(req, res) {
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q = 'DELETE FROM posts WHERE `id` = ? AND `userId` = ?';
       db.query(q, [req.params.id, userInfo.id], (err, data) => {

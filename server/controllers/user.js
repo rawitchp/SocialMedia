@@ -13,8 +13,9 @@ export const userController = {
   },
   updateUser(req, res) {
     const userId = req.params.userId;
-
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q =
         'UPDATE users SET `name` = ?,`city` = ?,`website` = ?,`profilePic` = ?,`coverPic` = ? WHERE id = ?';

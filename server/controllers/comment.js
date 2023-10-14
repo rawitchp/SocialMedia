@@ -13,7 +13,9 @@ export const commentController = {
     });
   },
   addComment(req, res) {
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q =
         'INSERT INTO comments (`desc`,`createdAt`,`userId`,`postId`) VALUES (?)';

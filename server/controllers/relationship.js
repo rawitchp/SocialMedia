@@ -13,7 +13,9 @@ export const relationshipController = {
     });
   },
   addRelationship(req, res) {
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q =
         'INSERT INTO relationships (`followerUserId`,`followedUserId`) VALUES (?)';
@@ -27,7 +29,9 @@ export const relationshipController = {
   },
 
   deleteRelationship(req, res) {
-    jwt.verify(token, 'secretkey', (err, userInfo) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader.split(' ')[1];
+    jwt.verify(token, process.env.JWT, (err, userInfo) => {
       if (err) return res.status(403).json('Token is invalid!');
       const q =
         'DELETE FROM relationships WHERE `followerUserId` = ? AND `followedUserId` = ?';
